@@ -39,6 +39,17 @@ function readConfigFile(configDir: string): PartialCrowClawConfig {
   return JSON.parse(raw) as PartialCrowClawConfig;
 }
 
+function resolveAutopoiesisRuntimePath(
+  configuredPath: string | undefined,
+  fallbackPath: string | undefined
+): string {
+  if (configuredPath && fs.existsSync(configuredPath)) {
+    return configuredPath;
+  }
+
+  return fallbackPath ?? getBundledAutopoiesisRuntime();
+}
+
 export function getCrowClawConfigPath(configDir: string): string {
   return path.join(configDir, "crowclaw.config.json");
 }
@@ -124,8 +135,7 @@ export function loadCrowClawConfig(env: NodeJS.ProcessEnv = process.env): CrowCl
         env.CROWCLAW_PYTHON_PATH ?? fileConfig.autopoiesis?.pythonPath ?? defaults.autopoiesis.pythonPath,
       runtimePath:
         env.CROWCLAW_AUTOPOIESIS_RUNTIME_PATH ??
-        fileConfig.autopoiesis?.runtimePath ??
-        defaults.autopoiesis.runtimePath,
+        resolveAutopoiesisRuntimePath(fileConfig.autopoiesis?.runtimePath, defaults.autopoiesis.runtimePath),
       sampleCycles: Number(
         env.CROWCLAW_AUTOPOIESIS_SAMPLE_CYCLES ??
         fileConfig.autopoiesis?.sampleCycles ??

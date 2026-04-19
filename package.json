@@ -28,8 +28,9 @@
     "autopoiesis-status": "node dist/cli/main.js autopoiesis status",
     "smoke": "node dist/cli/main.js smoke",
     "test": "node tests/verify.mjs",
+    "verify-release": "node tests/release-verify.mjs",
     "prebuild": "npm run clean",
-    "prepack": "npm run build && npm run test"
+    "prepack": "npm run build && npm run test && npm run verify-release"
   },
   "devDependencies": {
     "typescript": "^5.7.3"

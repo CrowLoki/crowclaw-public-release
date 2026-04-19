@@ -230,13 +230,7 @@ async function run(): Promise<void> {
   if (command === "features") {
     const action = positionals[0] ?? "status";
     if (action === "status") {
-      const { runtime } = buildRuntime();
-      await runtime.start();
-      try {
-        console.log(JSON.stringify(await runtime.getDiagnostics(), null, 2));
-      } finally {
-        await runtime.stop();
-      }
+      console.log(JSON.stringify(buildDoctorReport(), null, 2));
       return;
     }
 
