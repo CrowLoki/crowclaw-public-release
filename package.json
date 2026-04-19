@@ -1,0 +1,40 @@
+{
+  "name": "crowclaw",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Public local-first CrowClaw CLI with integrated CrowQuant memory and Autopoiesis controls.",
+  "license": "MIT",
+  "bin": {
+    "crowclaw": "dist/cli/main.js"
+  },
+  "files": [
+    "dist",
+    "python",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "build": "node ./node_modules/typescript/lib/tsc.js -p tsconfig.json",
+    "crowclaw": "node dist/cli/main.js",
+    "diag": "node dist/cli/main.js diag",
+    "providers": "node dist/cli/main.js providers",
+    "generate": "node dist/cli/main.js generate",
+    "setup": "node dist/cli/main.js setup --non-interactive",
+    "doctor": "node dist/cli/main.js doctor",
+    "features": "node dist/cli/main.js features",
+    "memory-status": "node dist/cli/main.js memory status",
+    "autopoiesis-status": "node dist/cli/main.js autopoiesis status",
+    "smoke": "node dist/cli/main.js smoke",
+    "test": "node tests/verify.mjs",
+    "prebuild": "npm run clean",
+    "prepack": "npm run build && npm run test"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

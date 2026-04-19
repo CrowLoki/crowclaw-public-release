@@ -1,0 +1,9 @@
+dist/
+future/
+node_modules/
+python/crowquant/crowquant/__pycache__/
+.npm-cache/
+.npm-prefix/
+.tmp-user-home/
+*.tgz
+.DS_Store
