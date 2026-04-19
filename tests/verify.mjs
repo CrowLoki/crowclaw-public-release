@@ -68,6 +68,8 @@ function runChecks() {
 
   assert.equal(fs.existsSync(getBundledAutopoiesisRuntime()), true);
   assert.equal(fs.existsSync(getBundledCrowQuantRoot()), true);
+  assert.equal("pythonPath" in reloaded.crowquant, true);
+  assert.equal(reloaded.crowquant.pythonPath, undefined);
 }
 
 runChecks();

@@ -50,6 +50,10 @@ function resolveAutopoiesisRuntimePath(
   return fallbackPath ?? getBundledAutopoiesisRuntime();
 }
 
+function resolveConfiguredPythonPath(envPath: string | undefined, fallbackPath: string | undefined): string | undefined {
+  return envPath ?? fallbackPath;
+}
+
 export function getCrowClawConfigPath(configDir: string): string {
   return path.join(configDir, "crowclaw.config.json");
 }
@@ -73,13 +77,13 @@ export function buildDefaultCrowClawConfig(env: NodeJS.ProcessEnv = process.env)
       apiKeyEnvVar: env.CROWQUANT_API_KEY_ENV_VAR ?? "CROWQUANT_API_KEY",
       journalDir: env.CROWQUANT_JOURNAL_DIR ?? path.join(workspaceDir, ".crowquant-journal"),
       memoryDbPath: env.CROWQUANT_MEMORY_DB_PATH ?? path.join(workspaceDir, ".crowquant", "memory.sqlite"),
-      pythonPath: env.CROWCLAW_PYTHON_PATH,
+      pythonPath: resolveConfiguredPythonPath(env.CROWCLAW_PYTHON_PATH, undefined),
       provider: (env.CROWQUANT_MEMORY_PROVIDER as "hash" | "ollama" | undefined) ?? "hash",
       ollamaUrl: env.CROWQUANT_OLLAMA_URL ?? "http://localhost:11434"
     },
     autopoiesis: {
       enabled: parseBoolean(env.CROWCLAW_AUTOPOIESIS_ENABLED, false),
-      pythonPath: env.CROWCLAW_PYTHON_PATH,
+      pythonPath: resolveConfiguredPythonPath(env.CROWCLAW_PYTHON_PATH, undefined),
       runtimePath: env.CROWCLAW_AUTOPOIESIS_RUNTIME_PATH ?? getBundledAutopoiesisRuntime(),
       sampleCycles: Number(env.CROWCLAW_AUTOPOIESIS_SAMPLE_CYCLES ?? "5")
     }
@@ -119,7 +123,7 @@ export function loadCrowClawConfig(env: NodeJS.ProcessEnv = process.env): CrowCl
         env.CROWQUANT_MEMORY_DB_PATH ??
         fileConfig.crowquant?.memoryDbPath ??
         path.join(workspaceDir, ".crowquant", "memory.sqlite"),
-      pythonPath: env.CROWCLAW_PYTHON_PATH ?? fileConfig.crowquant?.pythonPath ?? defaults.crowquant.pythonPath,
+      pythonPath: resolveConfiguredPythonPath(env.CROWCLAW_PYTHON_PATH, defaults.crowquant.pythonPath),
       provider:
         (env.CROWQUANT_MEMORY_PROVIDER as CrowClawConfig["crowquant"]["provider"] | undefined) ??
         fileConfig.crowquant?.provider ??
@@ -131,8 +135,7 @@ export function loadCrowClawConfig(env: NodeJS.ProcessEnv = process.env): CrowCl
         env.CROWCLAW_AUTOPOIESIS_ENABLED,
         fileConfig.autopoiesis?.enabled ?? defaults.autopoiesis.enabled
       ),
-      pythonPath:
-        env.CROWCLAW_PYTHON_PATH ?? fileConfig.autopoiesis?.pythonPath ?? defaults.autopoiesis.pythonPath,
+      pythonPath: resolveConfiguredPythonPath(env.CROWCLAW_PYTHON_PATH, defaults.autopoiesis.pythonPath),
       runtimePath:
         env.CROWCLAW_AUTOPOIESIS_RUNTIME_PATH ??
         resolveAutopoiesisRuntimePath(fileConfig.autopoiesis?.runtimePath, defaults.autopoiesis.runtimePath),

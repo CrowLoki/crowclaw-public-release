@@ -20,6 +20,21 @@ interface ParsedArgs {
   flags: Record<string, string | boolean>;
 }
 
+function redactPath(value: string, verbose: boolean): string {
+  return verbose ? value : "<redacted>";
+}
+
+function redactFeaturePaths<T extends { pythonPath?: string; runtimePath?: string }>(
+  feature: T,
+  verbose: boolean
+): T {
+  return {
+    ...feature,
+    ...(feature.pythonPath ? { pythonPath: redactPath(feature.pythonPath, verbose) } : {}),
+    ...(feature.runtimePath ? { runtimePath: redactPath(feature.runtimePath, verbose) } : {})
+  };
+}
+
 function parseArgs(argv: string[]): ParsedArgs {
   const positionals: string[] = [];
   const flags: Record<string, string | boolean> = {};
@@ -133,27 +148,26 @@ async function runSetup(flags: Record<string, string | boolean>): Promise<void> 
   const autopoiesisEnabled = nonInteractive
     ? parseFeatureValue(flags.autopoiesis, config.autopoiesis.enabled)
     : await promptBoolean("Enable Autopoiesis at startup?", config.autopoiesis.enabled);
-  const pythonPath = typeof flags["python-path"] === "string"
-    ? flags["python-path"]
-    : detectedPython.command ?? config.crowquant.pythonPath;
+  const explicitPythonPath = typeof flags["python-path"] === "string" ? flags["python-path"] : undefined;
 
   writeCrowClawConfig({
     ...config,
     crowquant: {
       ...config.crowquant,
       enabled: crowquantEnabled,
-      pythonPath
+      pythonPath: explicitPythonPath
     },
     autopoiesis: {
       ...config.autopoiesis,
       enabled: autopoiesisEnabled,
-      pythonPath
+      pythonPath: explicitPythonPath
     }
   });
 
+  const verbose = Boolean(flags.verbose);
   console.log(JSON.stringify({
     ok: true,
-    configPath: path.join(config.configDir, "crowclaw.config.json"),
+    configPath: redactPath(path.join(config.configDir, "crowclaw.config.json"), verbose),
     python: detectedPython,
     features: {
       crowquant: crowquantEnabled,
@@ -194,22 +208,22 @@ function updateFeature(feature: FeatureName, enabled: boolean, pythonPath?: stri
   });
 }
 
-function buildDoctorReport() {
+function buildDoctorReport(verbose = false) {
   const config = loadCrowClawConfig();
   const python = detectPython(config.crowquant.pythonPath ?? config.autopoiesis.pythonPath);
 
   return {
     ok: true,
-    configPath: path.join(config.configDir, "crowclaw.config.json"),
-    workspaceDir: config.workspaceDir,
+    configPath: redactPath(path.join(config.configDir, "crowclaw.config.json"), verbose),
+    workspaceDir: redactPath(config.workspaceDir, verbose),
     python,
     bundledAssets: {
-      crowquantRoot: getBundledCrowQuantRoot(),
-      autopoiesisRuntime: getBundledAutopoiesisRuntime()
+      crowquantRoot: redactPath(getBundledCrowQuantRoot(), verbose),
+      autopoiesisRuntime: redactPath(getBundledAutopoiesisRuntime(), verbose)
     },
     features: {
-      crowquant: config.crowquant,
-      autopoiesis: config.autopoiesis
+      crowquant: redactFeaturePaths(config.crowquant, verbose),
+      autopoiesis: redactFeaturePaths(config.autopoiesis, verbose)
     }
   };
 }
@@ -223,14 +237,14 @@ async function run(): Promise<void> {
   }
 
   if (command === "doctor") {
-    console.log(JSON.stringify(buildDoctorReport(), null, 2));
+    console.log(JSON.stringify(buildDoctorReport(Boolean(flags.verbose)), null, 2));
     return;
   }
 
   if (command === "features") {
     const action = positionals[0] ?? "status";
     if (action === "status") {
-      console.log(JSON.stringify(buildDoctorReport(), null, 2));
+      console.log(JSON.stringify(buildDoctorReport(Boolean(flags.verbose)), null, 2));
       return;
     }
 
