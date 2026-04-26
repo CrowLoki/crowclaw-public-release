@@ -1,8 +1,8 @@
 {
   "title": "Structured Diff Report: CrowClaw v6 \u2192 Current master",
   "generated_at": "2026-04-26T02:53:16.361925+00:00",
-  "v6_reference": "/home/djdar/BACKUPS/.hermes/CrowClaw/original/CrowClaw-v6",
-  "current_reference": "/home/djdar/crowclaw-srh-hqre",
+  "v6_reference": "v6-reference-path",
+  "current_reference": "current-reference-path",
   "commit_history": [
     {
       "hash": "3d7a0affa65f2bfd4a0e92dc1cde991fe94a48ae",
