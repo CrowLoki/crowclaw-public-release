@@ -51,7 +51,6 @@ flowchart TB
     style Autopoietic fill:#bbf,stroke:#333,stroke-width:2px
     style Integrations fill:#bfb,stroke:#333,stroke-width:2px
     style Security fill:#fbb,stroke:#333,stroke-width:2px
-end
 ```
 
 ## Component Descriptions
